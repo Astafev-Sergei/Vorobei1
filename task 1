@@ -2,9 +2,10 @@ import SwiftUI
 
 import UIKit
 
+ // Вычисляем текущую высоту таб-бара
 extension UITabBar {
     static var height: CGFloat {
-        // Возвращает текущую высоту таб-бара
+       
         return UITabBarController().tabBar.frame.size.height
     }
 }
