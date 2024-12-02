@@ -1,0 +1,101 @@
+import SwiftUI
+
+import UIKit
+
+extension UITabBar {
+    static var height: CGFloat {
+        // Возвращает текущую высоту таб-бара
+        return UITabBarController().tabBar.frame.size.height
+    }
+}
+
+
+struct ContentView: View {
+    @State private var rectangleHeight: CGFloat = 50 // Начальная высота прямоугольника
+    @State private var showHeightInput: Bool = false // Состояние для показа модального окна
+
+    var body: some View {
+        ZStack {
+           
+            TabView {
+                ScrollableTabView(rectangleHeight: rectangleHeight)
+                    .tabItem {
+                        Label("First", systemImage: "star.fill")
+                    }
+            }
+
+            // Прямоугольник над таб-баром
+            VStack {
+                Spacer()
+                Rectangle()
+                    .fill(Color.red.opacity(0.8))
+                  .frame(height: rectangleHeight)
+                    
+                    .padding(.bottom, UITabBar.height)
+                    .onTapGesture {
+                        showHeightInput = true // Окно для ввода высоты
+                    }
+            }
+            .ignoresSafeArea(edges: .horizontal)
+            
+        }
+       
+        .sheet(isPresented: $showHeightInput) {
+            HeightInputView(rectangleHeight: $rectangleHeight)
+        }
+    }
+}
+
+struct ScrollableTabView: View {
+    let rectangleHeight: CGFloat
+
+    var body: some View {
+        ScrollView {
+            VStack {
+                ForEach(1..<101, id: \.self) { index in
+                    Text("\(index)")
+                        .font(.system(size: 28, weight: .regular, design: .monospaced))
+                        .foregroundColor(.gray)
+                        .opacity(0.8)
+                        .padding(.horizontal)
+                }
+            }
+            .frame(maxWidth: .infinity)
+         
+        }
+        .safeAreaInset(edge: .bottom) {
+           Color.clear.frame(height: rectangleHeight)
+        }
+    }
+}
+
+
+
+// Окно для ввода высоты
+struct HeightInputView: View {
+    @Binding var rectangleHeight: CGFloat
+    @State private var inputHeight: String = ""
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        VStack {
+            Text("Введите высоту прямоугольника")
+                .font(.headline)
+                .padding()
+
+            TextField("Высота в пикселях", text: $inputHeight)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .keyboardType(.decimalPad)
+                .padding()
+
+            Button("Применить") {
+                if let newHeight = Double(inputHeight) {
+                    rectangleHeight = CGFloat(newHeight)
+                    presentationMode.wrappedValue.dismiss()
+                }
+            }
+            .padding()
+        }
+        .padding()
+    }
+}
